@@ -1,5 +1,7 @@
+# Name of the workflow
 name: Azure Static Web Apps CI/CD
 
+# Trigger the workflow on push or pull request events but only for the master branch
 on:
   push:
     branches:
@@ -10,27 +12,44 @@ on:
       - master
 
 jobs:
+  # Job to build and deploy the application
   build_and_deploy_job:
+    # This job runs on push events or on pull requests that are not closed
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    # Permissions needed for the job
     permissions:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v3
+      # Checks out the repository so the workflow can access it
+      - uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
+      
+      # Sets up Node.js environment
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          # Updated Node.js version to 20 to meet dependency requirements
+          node-version: "20"
           cache: "npm"
+          
+      # Installs project dependencies using npm ci for a clean install
+      # NOTE: This requires package.json and package-lock.json to be in sync.
+      # Run `npm install` locally and commit the updated package-lock.json to fix sync issues.
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
+        
+      # The "Get Id Token" and subsequent steps seem custom and potentially unnecessary
+      # for the standard Azure SWA deploy action, which can handle authentication.
+      # Consider removing them if the standard deploy action works for you.
+      # Keeping them for now as they were in the original file.
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
+        
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
@@ -39,21 +58,24 @@ jobs:
             const coredemo = require('@actions/core')
             return await coredemo.getIDToken()
           result-encoding: string
+          
+      # Deploys the application to Azure Static Web Apps
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KIND_SMOKE_013E4D50F }}
           action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          ###### Repository/Build Configurations ######
           app_location: "/" # App source code path
-          api_location: "" # Api source code path - optional
+          api_location: "" # API source code path - optional
           output_location: "dist" # Built app content directory - optional
           github_id_token: ${{ steps.idtoken.outputs.result }}
           ###### End of Repository/Build Configurations ######
 
+  # Job to close the pull request in Azure Static Web Apps
   close_pull_request_job:
+    # This job runs only when a pull request is closed
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     name: Close Pull Request Job
