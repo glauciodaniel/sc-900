@@ -37,11 +37,10 @@ jobs:
           node-version: "20"
           cache: "npm"
           
-      # Installs project dependencies using npm ci for a clean install
-      # NOTE: This requires package.json and package-lock.json to be in sync.
-      # Run `npm install` locally and commit the updated package-lock.json to fix sync issues.
+      # Installs project dependencies using npm ci.
+      # The --legacy-peer-deps flag is used to bypass peer dependency conflicts.
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         
       # The "Get Id Token" and subsequent steps seem custom and potentially unnecessary
       # for the standard Azure SWA deploy action, which can handle authentication.
