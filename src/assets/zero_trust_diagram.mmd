@@ -1,0 +1,41 @@
+graph TB
+    subgraph "Modelo Zero Trust"
+        subgraph "Princípios Fundamentais"
+            A[Never Trust<br/>Nunca Confie] --> B[Always Verify<br/>Sempre Verifique]
+            B --> C[Least Privilege<br/>Menor Privilégio]
+        end
+        
+        subgraph "Pilares de Proteção"
+            D[Identidades<br/>👤] --> E[Dispositivos<br/>📱]
+            E --> F[Aplicações<br/>💻]
+            F --> G[Dados<br/>📊]
+            G --> H[Infraestrutura<br/>🏗️]
+            H --> I[Rede<br/>🌐]
+        end
+        
+        subgraph "Tecnologias Habilitadoras"
+            J[Conditional Access<br/>Acesso Condicional]
+            K[Multi-Factor Authentication<br/>Autenticação Multifator]
+            L[Privileged Identity Management<br/>Gerenciamento de Identidade Privilegiada]
+            M[Microsoft Defender<br/>Proteção Avançada]
+        end
+        
+        A -.-> D
+        B -.-> J
+        C -.-> L
+        
+        D --> J
+        E --> K
+        F --> M
+        G --> L
+    end
+    
+    style A fill:#ff6b6b
+    style B fill:#4ecdc4
+    style C fill:#45b7d1
+    style D fill:#96ceb4
+    style E fill:#feca57
+    style F fill:#ff9ff3
+    style G fill:#54a0ff
+    style H fill:#5f27cd
+    style I fill:#00d2d3
